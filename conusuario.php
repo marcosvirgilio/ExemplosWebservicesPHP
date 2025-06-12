@@ -8,25 +8,17 @@ error_reporting(E_ALL);
 require_once 'conexao.php';
 $con->set_charset("utf8");
 
-// Decode JSON input
-$input = json_decode(file_get_contents('php://input'), true);
-$nmUsuario = isset($input['nmUsuario']) ? trim($input['nmUsuario']) : '';
+// Decode JSON input (but ignore its contents)
+json_decode(file_get_contents('php://input'), true);
 
-// SQL with case-insensitive search using LOWER()
-$sql = "SELECT idUsuario, nmUsuario, deEmail, deSenha, cdSexo, cdTipo, dtNascimento, opTermo 
-        FROM Usuario 
-        WHERE LOWER(nmUsuario) LIKE LOWER(?)";
+// New SQL: no WHERE clause
+$sql = "SELECT idUsuario, nmUsuario, deEmail, deSenha, cdSexo, cdTipo, dtNascimento, opTermo FROM Usuario";
 
-$stmt = $con->prepare($sql);
-$likeParam = '%' . $nmUsuario . '%';
-$stmt->bind_param('s', $likeParam);
-
-$stmt->execute();
-$result = $stmt->get_result();
+$result = $con->query($sql);
 
 $response = [];
 
-if ($result->num_rows > 0) {
+if ($result && $result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
         $response[] = array_map(fn($val) => mb_convert_encoding($val, 'UTF-8', 'ISO-8859-1'), $row);
     }
@@ -46,7 +38,6 @@ if ($result->num_rows > 0) {
 header('Content-Type: application/json; charset=utf-8');
 echo json_encode($response);
 
-$stmt->close();
 $con->close();
 
 ?>
