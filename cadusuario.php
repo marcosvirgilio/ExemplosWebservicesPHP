@@ -28,12 +28,6 @@ $cdTipo       = intval($jsonParam['cdTipo'] ?? 0);
 $dtNascimento = !empty($jsonParam['dtNascimento']) ? date('Y-m-d', strtotime($jsonParam['dtNascimento'])) : null;
 $opTermo      = !empty($jsonParam['opTermo']) ? 1 : 0;
 
-// Validate required fields
-if (empty($nmUsuario) || empty($deEmail) || empty($deSenha) || !$dtNascimento) {
-    echo json_encode(['success' => false, 'message' => 'Campos obrigatórios ausentes.']);
-    exit;
-}
-
 // Prepare and bind
 $stmt = $con->prepare("
     INSERT INTO Usuario (nmUsuario, deEmail, deSenha, cdSexo, cdTipo, dtNascimento, opTermo)
