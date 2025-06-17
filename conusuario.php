@@ -20,7 +20,7 @@ $response = [];
 
 if ($result && $result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
-        $response[] = array_map(fn($val) => mb_convert_encoding($val, 'UTF-8', 'ISO-8859-1'), $row);
+        $response[] = $row; // ✅ Use as-is, no encoding conversion
     }
 } else {
     $response[] = [
@@ -36,8 +36,7 @@ if ($result && $result->num_rows > 0) {
 }
 
 header('Content-Type: application/json; charset=utf-8');
-echo json_encode($response);
+echo json_encode($response, JSON_UNESCAPED_UNICODE); // ✅ ensures UTF-8 chars are preserved
 
 $con->close();
-
 ?>
